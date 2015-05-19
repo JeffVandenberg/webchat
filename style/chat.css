@@ -22,6 +22,7 @@
 
 #chat-container {
     padding: 10px;
+    display: none;
 }
 
 #userlist {
@@ -36,4 +37,22 @@
     background-color: #eeeeee;
     margin: 1px;
     padding: 2px;
+}
+
+#notification {
+    display: none;
+    color: #006;
+    text-align: center;
+}
+
+#login {
+    width: 500px;
+    margin: 0 auto;
+    border: 1px solid #224;
+    background-color: #cce;
+    text-align: center;
+}
+
+#roomlist [selected] {
+    color: #ff0000;
 }

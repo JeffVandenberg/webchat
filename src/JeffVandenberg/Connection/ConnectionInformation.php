@@ -9,15 +9,41 @@
 namespace JeffVandenberg\Connection;
 
 
+/**
+ * Class ConnectionInformation
+ * @package JeffVandenberg\Connection
+ */
 class ConnectionInformation
 {
     /**
      * @var
      */
     private $connection;
+    /**
+     * @var
+     */
     private $action;
+    /**
+     * @var
+     */
     private $username;
+    /**
+     * @var
+     */
     private $id;
+
+    /**
+     * @return mixed
+     */
+    public function getRoomId()
+    {
+        return $this->roomId;
+    }
+
+    /**
+     * @var
+     */
+    private $roomId;
 
     /**
      * @return mixed
@@ -81,5 +107,13 @@ class ConnectionInformation
     public function setId($id)
     {
         $this->id = $id;
+    }
+
+    /**
+     * @param $roomId
+     */
+    public function setRoomId($roomId)
+    {
+        $this->roomId = $roomId;
     }
 }

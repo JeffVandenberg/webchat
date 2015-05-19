@@ -9,9 +9,9 @@
 namespace JeffVandenberg;
 
 
-use Guzzle\Http\QueryString;
 use JeffVandenberg\Connection\ConnectionManager;
 use JeffVandenberg\Message\MessageManager;
+use JeffVandenberg\Room\RoomManager;
 use Ratchet\ConnectionInterface;
 use Ratchet\MessageComponentInterface;
 
@@ -36,10 +36,10 @@ class Chat implements MessageComponentInterface
      */
     public function __construct()
     {
-        $this->clients = array();
         $this->users = array();
         $this->ConnectionManager = new ConnectionManager($this);
         $this->MessageManager = new MessageManager($this);
+        $this->RoomManager = new RoomManager($this);
     }
 
     /**
@@ -49,17 +49,18 @@ class Chat implements MessageComponentInterface
      */
     function onOpen(ConnectionInterface $conn)
     {
+        echo "New connection! ({$conn->resourceId})\n";
+
         $connInfo = $this->ConnectionManager->loadNewConnection($conn);
 
         $this->users[] = $connInfo->getUsername();
         sort($this->users);
 
-        echo "New connection! ({$conn->resourceId})\n";
-
-        $this->MessageManager->sendFullUserList(array($connInfo));
-        $this->MessageManager->sendUserListUpdate('add', $connInfo);
-        $this->MessageManager->sendMessage($connInfo, "New User Connected!");
-        $this->onMessage($conn, "New User Connected!");
+        $this->RoomManager->addConnectionToRoom($connInfo);
+        $this->MessageManager->sendUserList($connInfo);
+        $this->MessageManager->sendRoomList($connInfo, $this->RoomManager->getRoomList());
+        $this->RoomManager->sendUserListUpdate('add', $connInfo);
+        $this->RoomManager->sendMessageToRoom($connInfo, "New User Connected!");
     }
 
     /**
@@ -70,16 +71,19 @@ class Chat implements MessageComponentInterface
     function onClose(ConnectionInterface $conn)
     {
         // The connection is closed, remove it, as we can no longer send it messages
-        $data = clone $this->clients[$conn->resourceId];
-        $key = array_search($data->username, $this->users);
+        $connInfo = $this->ConnectionManager->getConnectionInfoForConnection($conn);
+
+        $key = array_search($connInfo->getUsername(), $this->users);
         if($key !== false) {
             unset($this->users[$key]);
         }
-        unset($this->clients[$conn->resourceId]);
+
+        $this->ConnectionManager->unsetConnection($connInfo);
 
         echo "Connection {$conn->resourceId} has disconnected\n";
-        $this->sendUserListUpdate($conn, 'remove', $data->username);
-        $this->onMessage($conn, $data->username . " Disconnected!");
+        $room = $this->RoomManager->getRoom($connInfo->getRoomId());
+        $room->sendUserListUpdate('remove', $connInfo);
+        $room->sendMessage($connInfo, $connInfo->getUsername() . ' Disconnected!');
     }
 
     /**
@@ -104,51 +108,33 @@ class Chat implements MessageComponentInterface
      */
     function onMessage(ConnectionInterface $from, $msg)
     {
-        $numRecv = count($this->clients) - 1;
-        echo sprintf('Connection %d sending message "%s" to %d other connection%s' . "\n"
-            , $from->resourceId, $msg, $numRecv, $numRecv == 1 ? '' : 's');
+        $connInfo = $this->ConnectionManager->getConnectionInfoForConnection($from);
 
-        $data = $this->clients[$from->resourceId];
-
-        $username = '';
-        if($data) {
-            $username = $data->username;
-        }
-        $data = array(
-            'type' => 'message',
-            'username' => $username,
-            'timestamp' => date('Y-m-d H:i:s'),
-            'message' => $msg
-        );
-
-        foreach ($this->clients as $client) {
-            if (true) { //$from !== $client) {
-                // The sender is not the receiver, send to each client connected
-                $client->connection->send(json_encode($data));
-            }
+        $command = json_decode($msg, true);
+        switch(strtolower($command['action'])) {
+            case 'room-message':
+                $this->RoomManager->sendMessageToRoom($connInfo, $command['data']['message']);
+                break;
+            case 'change-room':
+                $this->RoomManager->switchRoomForConnection($connInfo, $command['data']['roomId']);
+                break;
         }
     }
 
     /**
-     * @param $conn
-     * @param $action
-     * @param $username
+     * @return MessageManager
      */
-    private function sendUserListUpdate($conn, $action, $username)
+    public function getMessageManager()
     {
-        $data = array(
-            'type' => 'userlist-update',
-            'data' => array(
-                'action' => $action,
-                'username' => $username
-            )
-        );
+        return $this->MessageManager;
+    }
 
-        foreach($this->clients as $client) {
-            if($client->connection->resourceId != $conn->resourceId) {
-                $client->connection->send(json_encode($data));
-            }
-        }
+    /**
+     * @return RoomManager
+     */
+    public function getRoomManager()
+    {
+        return $this->RoomManager;
     }
 
     /**
