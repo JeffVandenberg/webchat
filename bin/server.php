@@ -10,16 +10,29 @@ use JeffVandenberg\Chat;
 use Ratchet\Http\HttpServer;
 use Ratchet\Server\IoServer;
 use Ratchet\WebSocket\WsServer;
+use React\EventLoop\Factory;
 
 require_once dirname(__DIR__) . '/vendor/autoload.php';
 
 
-$server = IoServer::factory(
-    new HttpServer(
-        new WsServer(
-            new Chat()
-        )
-    ),
+$loop = Factory::create();
+
+$chat = new Chat();
+
+$server = new HttpServer(
+    new WsServer(
+        $chat
+    )
+);
+
+$chatServer = IoServer::factory(
+    $server,
     8080);
 
-$server->run();
+//$loop->addPeriodicTimer(3, function() use ($chat) {
+//    $chat->performPulse();
+//});
+//$loop->run();
+
+$chatServer->run();
+

@@ -74,7 +74,7 @@ class Chat implements MessageComponentInterface
         $connInfo = $this->ConnectionManager->getConnectionInfoForConnection($conn);
 
         $key = array_search($connInfo->getUsername(), $this->users);
-        if($key !== false) {
+        if ($key !== false) {
             unset($this->users[$key]);
         }
 
@@ -111,7 +111,7 @@ class Chat implements MessageComponentInterface
         $connInfo = $this->ConnectionManager->getConnectionInfoForConnection($from);
 
         $command = json_decode($msg, true);
-        switch(strtolower($command['action'])) {
+        switch (strtolower($command['action'])) {
             case 'room-message':
                 $this->RoomManager->sendMessageToRoom($connInfo, $command['data']['message']);
                 break;
@@ -151,5 +151,13 @@ class Chat implements MessageComponentInterface
     public function getConnectionManager()
     {
         return $this->ConnectionManager;
+    }
+
+    public function performPulse()
+    {
+        echo "Perform Pulse\n";
+        foreach ($this->RoomManager->getRooms() as $room) {
+            $room->sendMessage(null, 'This is a pulse');
+        }
     }
 }

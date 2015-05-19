@@ -90,6 +90,11 @@ class RoomManager
         }
     }
 
+    /**
+     * @param ConnectionInformation $connInfo
+     * @param $message
+     * @throws Exception
+     */
     public function sendMessageToRoom(ConnectionInformation $connInfo, $message)
     {
         $room = $this->getRoom($connInfo->getRoomId());
@@ -98,6 +103,11 @@ class RoomManager
         }
     }
 
+    /**
+     * @param ConnectionInformation $connInfo
+     * @param $roomId
+     * @throws Exception
+     */
     public function switchRoomForConnection(ConnectionInformation $connInfo, $roomId)
     {
         $oldRoom = $this->getRoom($connInfo->getRoomId());
@@ -113,10 +123,23 @@ class RoomManager
         $newRoom->sendMessage($connInfo, 'User has joined the room');
     }
 
+    /**
+     * @param $action
+     * @param ConnectionInformation $connInfo
+     * @throws Exception
+     */
     public function sendUserListUpdate($action, ConnectionInformation $connInfo)
     {
         $room = $this->getRoom($connInfo->getRoomId());
         $room->sendUserListUpdate($action, $connInfo);
+    }
+
+    /**
+     * @return Room[]
+     */
+    public function getRooms()
+    {
+        return $this->rooms;
     }
 
 }

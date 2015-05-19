@@ -66,7 +66,7 @@ class Room
      * @param ConnectionInformation $fromConnInfo
      * @param $message
      */
-    public function sendMessage(ConnectionInformation $fromConnInfo, $message)
+    public function sendMessage(ConnectionInformation $fromConnInfo = null, $message = '')
     {
         $message = trim($message);
 
