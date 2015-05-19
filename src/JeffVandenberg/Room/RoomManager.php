@@ -72,7 +72,7 @@ class RoomManager
      */
     public function addConnectionToRoom(ConnectionInformation $connInfo)
     {
-        $this->rooms[$connInfo->getRoomId()]->addConnection($connInfo);
+        $this->getRoom($connInfo->getRoomId())->addConnection($connInfo);
     }
 
     /**

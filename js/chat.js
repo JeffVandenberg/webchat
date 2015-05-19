@@ -80,7 +80,7 @@ var chat = {
         };
 
         this.connection.onclose = function() {
-            $("#notification").text('Connection Closed!').show().delay(2000).hide('slow');
+            $("#notification").text('Connection Closed!').show();//.delay(2000).hide('slow');
         };
     },
 
