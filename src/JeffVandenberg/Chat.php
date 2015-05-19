@@ -10,17 +10,26 @@ namespace JeffVandenberg;
 
 
 use Guzzle\Http\QueryString;
+use JeffVandenberg\Connection\ConnectionManager;
+use JeffVandenberg\Message\MessageManager;
 use Ratchet\ConnectionInterface;
 use Ratchet\MessageComponentInterface;
 
 class Chat implements MessageComponentInterface
 {
     /**
-     * @var \SplObjectStorage
+     * @var array
      */
-    protected $clients;
-
     protected $users;
+
+    /**
+     * @var MessageManager
+     */
+    private $MessageManager;
+    /**
+     * @var ConnectionManager
+     */
+    private $ConnectionManager;
 
     /**
      * Chat constructor.
@@ -29,6 +38,8 @@ class Chat implements MessageComponentInterface
     {
         $this->clients = array();
         $this->users = array();
+        $this->ConnectionManager = new ConnectionManager($this);
+        $this->MessageManager = new MessageManager($this);
     }
 
     /**
@@ -38,32 +49,16 @@ class Chat implements MessageComponentInterface
      */
     function onOpen(ConnectionInterface $conn)
     {
-        $query = $conn->WebSocket->request->getQuery();
-        /* @var QueryString $query */
-        $action = $query->get('action');
-        $id = $query->get('id');
-        $username = $query->get('username');
+        $connInfo = $this->ConnectionManager->loadNewConnection($conn);
 
-        $object = new \stdClass();
-        $object->connection = $conn;
-        $object->action = $action;
-        $object->id = $id;
-        $object->username = $username;
-
-        $this->users[] = $username;
+        $this->users[] = $connInfo->getUsername();
         sort($this->users);
 
-        $this->clients[$conn->resourceId] = $object;
         echo "New connection! ({$conn->resourceId})\n";
 
-        $usersData = array(
-            'type' => 'userlist',
-            'data' => $this->users
-        );
-
-        $conn->send(json_encode($usersData));
-
-        $this->sendUserListUpdate($conn, 'add', $username);
+        $this->MessageManager->sendFullUserList(array($connInfo));
+        $this->MessageManager->sendUserListUpdate('add', $connInfo);
+        $this->MessageManager->sendMessage($connInfo, "New User Connected!");
         $this->onMessage($conn, "New User Connected!");
     }
 
@@ -134,6 +129,11 @@ class Chat implements MessageComponentInterface
         }
     }
 
+    /**
+     * @param $conn
+     * @param $action
+     * @param $username
+     */
     private function sendUserListUpdate($conn, $action, $username)
     {
         $data = array(
@@ -149,5 +149,21 @@ class Chat implements MessageComponentInterface
                 $client->connection->send(json_encode($data));
             }
         }
+    }
+
+    /**
+     * @return array
+     */
+    public function getUsers()
+    {
+        return $this->users;
+    }
+
+    /**
+     * @return ConnectionManager
+     */
+    public function getConnectionManager()
+    {
+        return $this->ConnectionManager;
     }
 }
