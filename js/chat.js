@@ -55,7 +55,7 @@ var chat = {
                     $("#userlist").append(
                         $("<div>")
                             .addClass('userentry')
-                            .attr('id', 'userlist-' + username.toLowerCase())
+                            .attr('id', 'userlist-' + userid)
                             .text(username)
                     );
                     $("#userlist").find(".userentry").sortElements(function(a, b) {
@@ -63,7 +63,7 @@ var chat = {
                         });
                 }
                 if(data.data.action == 'remove') {
-                    $("#userlist-" + username.toLowerCase()).remove();
+                    $("#userlist-" + userid).remove();
                 }
             }
             else if(data.type == 'roomlist') {
