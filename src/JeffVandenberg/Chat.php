@@ -70,6 +70,7 @@ class Chat implements MessageComponentInterface
      */
     function onClose(ConnectionInterface $conn)
     {
+        echo "Connection {$conn->resourceId} has disconnected\n";
         // The connection is closed, remove it, as we can no longer send it messages
         $connInfo = $this->ConnectionManager->getConnectionInfoForConnection($conn);
 
@@ -79,9 +80,8 @@ class Chat implements MessageComponentInterface
         }
 
         $this->ConnectionManager->unsetConnection($connInfo);
-
-        echo "Connection {$conn->resourceId} has disconnected\n";
         $room = $this->RoomManager->getRoom($connInfo->getRoomId());
+        $room->removeConnection($connInfo);
         $room->sendUserListUpdate('remove', $connInfo);
         $room->sendMessage($connInfo, $connInfo->getUsername() . ' Disconnected!');
     }
