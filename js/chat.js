@@ -143,8 +143,13 @@ $(function() {
     $("#send-message").click(function() {
         var messageBox = $("#message-box");
         var message = messageBox.val();
-        chat.sendMessage(message);
-        messageBox.val('');
+        if($.trim(message) !== '') {
+            chat.sendMessage(message);
+            messageBox.val('');
+        }
+        else {
+            alert('no message entered');
+        }
     });
 
     $("#roomlist").change(function(e) {

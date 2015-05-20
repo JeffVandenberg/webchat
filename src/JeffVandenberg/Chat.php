@@ -155,8 +155,8 @@ class Chat implements MessageComponentInterface
 
     public function performPulse()
     {
-        foreach ($this->RoomManager->getRooms() as $room) {
-            $room->sendMessage(null, 'This is a pulse');
-        }
+//        foreach ($this->RoomManager->getRooms() as $room) {
+//            $room->sendMessage(null, 'This is a pulse');
+//        }
     }
 }
