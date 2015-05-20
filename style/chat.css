@@ -17,7 +17,7 @@
 }
 
 #message-box {
-    width: 300px;
+    /*width: 300px;*/
 }
 
 #chat-container {
@@ -55,4 +55,8 @@
 
 #roomlist [selected] {
     color: #ff0000;
+}
+
+.row {
+    max-width: initial;
 }

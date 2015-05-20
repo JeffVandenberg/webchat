@@ -15,24 +15,63 @@
     <script type="application/javascript" src="bower_components/jquery/dist/jquery.min.js"></script>
     <script type="application/javascript" src="js/chat.js"></script>
     <script type="application/javascript" src="js/sortelements.js"></script>
+    <script type="application/javascript" src="bower_components/foundation/js/foundation.min.js"></script>
+    <link type="text/css" rel="stylesheet" href="bower_components/foundation/css/foundation.min.css" />
     <link type="text/css" rel="stylesheet" href="style/chat.css" />
 </head>
 <body>
+<div class="top-bar" role="navigation" data-topbar>
+    <ul class="title-area">
+        <li class="name">
+            <h1><a href="#">WebSocket Chat</a></h1>
+        </li>
+        <!-- Remove the class "menu-icon" to get rid of menu icon. Take out "Menu" to just have icon alone -->
+        <li class="toggle-topbar menu-icon"><a href="#"><span>Menu</span></a></li>
+    </ul>
+
+    <section class="top-bar-section">
+        <!-- Right Nav Section -->
+        <ul class="right">
+            <li class="has-dropdown">
+                <a href="#">Menu</a>
+                <ul class="dropdown">
+                    <li><a href="#">Logout</a></li>
+                    <li><a href="#">Change Name</a></li>
+                </ul>
+            </li>
+        </ul>
+    </section>
+</div>
 <div id="notification"></div>
-<div id="login">
+<div id="login" class="panel">
     <label for="username">User Name</label><input type="text" name="username" id="username" /><br />
     <input type="button" id="login-button" value="Login" />
 </div>
 <div id="chat-container">
-    <div id="header">
-        <div id="roomlist-container">
-            <label for="roomlist">Rooms:</label> <select id="roomlist"></select>
+    <div id="header" class="row">
+        <div class="small-1 columns">
+            <label for="roomlist">
+                Room:
+            </label>
+        </div>
+        <div class="small-11 columns">
+            <select id="roomlist"></select>
         </div>
     </div>
-    <div id="userlist"></div>
-    <div id="message-container"></div>
-    <label for="message-box">Message:</label> <input type="text" id="message-box" />
-    <input type="submit" id="send-message" />
+    <div class="row panel">
+        <div class="small-10 columns">
+            <div id="message-container"></div>
+            <label for="message-box"></label> <input type="text" id="message-box" />
+            <a id="send-message" class="button tiny round" href="#">Send</a>
+        </div>
+        <div class="small-2 columns">
+            <div id="roomlist-container">
+                <div id="userlist"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="chat-container">
 </div>
 </body>
 </html>
