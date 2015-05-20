@@ -85,7 +85,7 @@ class MessageManager
         }
     }
 
-    public function sendPublicMessage(ConnectionInformation $fromConnInfo, ConnectionInformation $toConnInfo, $message)
+    public function sendPublicMessage(ConnectionInformation $fromConnInfo = null, ConnectionInformation $toConnInfo, $message)
     {
         $message = trim($message);
 

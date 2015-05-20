@@ -34,5 +34,7 @@ $chatServer = IoServer::factory(
 //});
 //$loop->run();
 
+$chatServer->loop->addPeriodicTimer(60, function() use ($chat) {
+    $chat->performPulse();
+});
 $chatServer->run();
-
