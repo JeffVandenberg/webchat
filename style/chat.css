@@ -60,3 +60,8 @@
 .row {
     max-width: initial;
 }
+
+#notification-message {
+    color: #ddd;
+    font-weight: bold;
+}

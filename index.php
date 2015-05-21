@@ -34,15 +34,17 @@
         <ul class="right">
             <li class="has-dropdown">
                 <a href="#">Menu</a>
-                <ul class="dropdown">
-                    <li><a href="#">Logout</a></li>
+                <ul class="dropdown" id="submenu">
+                    <li><a href="#" id="logout">Logout</a></li>
                     <li><a href="#">Change Name</a></li>
                 </ul>
             </li>
         </ul>
     </section>
+    <section class="middle tab-bar-section">
+        <div id="notification-message" class="title"></div>
+    </section>
 </div>
-<div id="notification"></div>
 <div id="login" class="panel">
     <label for="username">User Name</label><input type="text" name="username" id="username" /><br />
     <input type="button" id="login-button" value="Login" />
@@ -63,6 +65,7 @@
             <div id="message-container"></div>
             <label for="message-box"></label> <input type="text" id="message-box" />
             <a id="send-message" class="button tiny round" href="#">Send</a>
+            <a id="logout-button" class="button tiny round" href="#">Logout</a>
         </div>
         <div class="small-2 columns">
             <div id="roomlist-container">

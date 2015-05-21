@@ -12,16 +12,16 @@ namespace JeffVandenberg;
 use JeffVandenberg\Connection\ConnectionManager;
 use JeffVandenberg\Message\MessageManager;
 use JeffVandenberg\Room\RoomManager;
+use JeffVandenberg\User\UserManager;
 use Ratchet\ConnectionInterface;
 use Ratchet\MessageComponentInterface;
 
+/**
+ * Class Chat
+ * @package JeffVandenberg
+ */
 class Chat implements MessageComponentInterface
 {
-    /**
-     * @var array
-     */
-    protected $users;
-
     /**
      * @var MessageManager
      */
@@ -30,16 +30,24 @@ class Chat implements MessageComponentInterface
      * @var ConnectionManager
      */
     private $ConnectionManager;
+    /**
+     * @var RoomManager
+     */
+    private $RoomManager;
+    /**
+     * @var UserManager
+     */
+    private $UserManager;
 
     /**
      * Chat constructor.
      */
     public function __construct()
     {
-        $this->users = array();
         $this->ConnectionManager = new ConnectionManager($this);
         $this->MessageManager = new MessageManager($this);
         $this->RoomManager = new RoomManager($this);
+        $this->UserManager = new UserManager($this);
     }
 
     /**
@@ -53,8 +61,14 @@ class Chat implements MessageComponentInterface
 
         $connInfo = $this->ConnectionManager->loadNewConnection($conn);
 
-        $this->users[] = $connInfo->getUsername();
-        sort($this->users);
+        $result = $this->UserManager->mayUserConnect($connInfo);
+
+//        if(!$result->getStatus()) {
+//            $this->MessageManager->sendNotification($connInfo, 'That username is already in use.');
+//            $conn->close();
+//        }
+
+        $this->UserManager->addUser($connInfo);
 
         $this->RoomManager->addConnectionToRoom($connInfo);
         $this->MessageManager->sendUserList($connInfo);
@@ -153,6 +167,9 @@ class Chat implements MessageComponentInterface
         return $this->ConnectionManager;
     }
 
+    /**
+     *
+     */
     public function performPulse()
     {
 //        foreach ($this->RoomManager->getRooms() as $room) {
