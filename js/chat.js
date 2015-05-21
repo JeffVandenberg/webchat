@@ -5,6 +5,18 @@ var parameters = {
     userName: ''
 };
 
+var sound = {
+    play: function(file) {
+        var player = $("#sound-player");
+        //player.attr('src', 'sounds/' + file);
+        //$("#sound-player-src").attr('src', 'sounds/' + file);
+        player[0].load();
+        player[0].play();
+        //player[0].load();
+        //player[0].play();
+        //document.getElementById("sound-player").play();
+    }
+};
 var chat = {
     connect: function(userName, action, id, roomId) {
         this.connection = new WebSocket('ws://wantonwicked.gamingsandbox.com:8080?' +
@@ -14,74 +26,89 @@ var chat = {
             '&roomId=' + roomId
         );
 
-        this.connection.onopen = function() {
-            $("#notification").text('Connected to Server!').show().delay(2000).hide('slow');
-        };
+        this.connection.onopen = this.openConnection;
 
-        this.connection.onmessage = function(e) {
-            var container = $("#message-container");
-            var data = JSON.parse(e.data);
+        this.connection.onmessage = this.handleMessage;
 
-            if(data.type == 'message') {
-                var message = data.message;
-                if(data.message.indexOf(parameters.userName) >= 0) {
-                    message = message.replace(parameters.userName, '<span style="color:#f00;">' + parameters.userName + '</span>');
-                }
-                var newMessage = $('<div class="message">').html('[' + data.timestamp + '] ' + data.username + ': ' + message);
-                container.append(newMessage);
+        this.connection.onclose = this.closeCleanUp;
+    },
 
-                if(container.length) {
-                    container.scrollTop(container[0].scrollHeight - (container.height()-18));
-                }
+    handleMessage: function(e) {
+        var container = $("#message-container");
+        var data = JSON.parse(e.data);
+
+        if(data.type == 'message') {
+            sound.play('button-41.wav');
+            var message = data.message;
+            if(data.message.indexOf(parameters.userName) >= 0) {
+                message = message.replace(parameters.userName, '<span style="color:#f00;">' + parameters.userName + '</span>');
             }
-            else if(data.type == 'userlist') {
-                $("#userlist").empty();
-                for(var i = 0; i < data.data.length; i++) {
-                    var user = data.data[i];
+            var newMessage = $('<div class="message">').html('[' + data.timestamp + '] ' + data.username + ': ' + message);
+            container.append(newMessage);
 
-                    $("#userlist").append(
-                        $("<div>")
-                            .addClass('userentry')
-                            .attr('id', 'userlist-' + user.id)
-                            .text(user.username)
-                    );
-                }
+            if(container.length) {
+                container.scrollTop(container[0].scrollHeight - (container.height()-18));
             }
-            else if(data.type == 'userlist-update') {
-                var username = data.data.username; //.replace('/[^\w]/', '');
-                var userid = data.data.id;
+        }
+        else if(data.type == 'userlist') {
+            $("#userlist").empty();
+            for(var i = 0; i < data.data.length; i++) {
+                var user = data.data[i];
 
-                if(data.data.action == 'add') {
-                    $("#userlist").append(
-                        $("<div>")
-                            .addClass('userentry')
-                            .attr('id', 'userlist-' + userid)
-                            .text(username)
-                    );
-                    $("#userlist").find(".userentry").sortElements(function(a, b) {
-                            return $(a).text().localeCompare($(b).text());
-                        });
-                }
-                if(data.data.action == 'remove') {
-                    $("#userlist-" + userid).remove();
-                }
+                $("#userlist").append(
+                    $("<div>")
+                        .addClass('userentry')
+                        .attr('id', 'userlist-' + user.id)
+                        .text(user.username)
+                );
             }
-            else if(data.type == 'roomlist') {
-                for(var i= 0; i < data.data.length; i++) {
-                    var roominfo = data.data[i];
-                    var room = $("<option>")
-                        .val(roominfo.id)
-                        .text(roominfo.name);
-                    $("#roomlist").append(room);
-                }
-                $("#roomlist").val(parameters.roomId);
+        }
+        else if(data.type == 'userlist-update') {
+            sound.play('button-48.wav');
+            var username = data.data.username; //.replace('/[^\w]/', '');
+            var userid = data.data.id;
+
+            if(data.data.action == 'add') {
+                $("#userlist").append(
+                    $("<div>")
+                        .addClass('userentry')
+                        .attr('id', 'userlist-' + userid)
+                        .text(username)
+                );
+                $("#userlist").find(".userentry").sortElements(function(a, b) {
+                    return $(a).text().localeCompare($(b).text());
+                });
             }
+            if(data.data.action == 'remove') {
+                $("#userlist-" + userid).remove();
+            }
+        }
+        else if(data.type == 'roomlist') {
+            for(var i= 0; i < data.data.length; i++) {
+                var roominfo = data.data[i];
+                var room = $("<option>")
+                    .val(roominfo.id)
+                    .text(roominfo.name);
+                $("#roomlist").append(room);
+            }
+            $("#roomlist").val(parameters.roomId);
+        }
+    },
 
-        };
+    openConnection: function() {
+        $("#notification-message").text('Connected to Server!');
+        $("#login").hide();
+        $("#chat-container").show();
+    },
 
-        this.connection.onclose = function() {
-            $("#notification").text('Connection Closed!').show();//.delay(2000).hide('slow');
-        };
+    closeConnection: function() {
+        this.connection.close();
+    },
+
+    closeCleanUp: function() {
+        $("#notification-message").text('Connection Closed!');
+        $("#login").show();
+        $("#chat-container").hide();
     },
 
     sendMessage: function(message) {
@@ -122,8 +149,6 @@ $(function() {
         if($.trim(username).replace(/[^a-z0-9]/gmi, "") !== '') {
             parameters.userName = username;
             chat.connect(parameters.userName, parameters.action, parameters.id, parameters.roomId);
-            $("#login").hide();
-            $("#chat-container").show();
         }
         else {
             alert('Please Enter a username')
@@ -154,5 +179,12 @@ $(function() {
 
     $("#roomlist").change(function(e) {
         chat.changeRoom($(this).val());
+    });
+
+    $("#top-menu li").click(function(e) {
+        alert('click');
+    });
+    $("#logout-button").click(function() {
+        chat.closeConnection();
     });
 });

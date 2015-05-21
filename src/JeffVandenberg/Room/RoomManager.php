@@ -121,6 +121,7 @@ class RoomManager
         $newRoom->addConnection($connInfo);
         $this->chat->getMessageManager()->sendUserList($connInfo);
         $newRoom->sendMessage($connInfo, 'User has joined the room');
+        $newRoom->sendUserListUpdate('add', $connInfo);
     }
 
     /**
