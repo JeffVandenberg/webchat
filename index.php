@@ -15,12 +15,13 @@
     <script type="application/javascript" src="bower_components/jquery/dist/jquery.min.js"></script>
     <script type="application/javascript" src="js/chat.js"></script>
     <script type="application/javascript" src="js/sortelements.js"></script>
-    <script type="application/javascript" src="bower_components/foundation/js/foundation.min.js"></script>
+    <script type="application/javascript" src="bower_components/foundation/js/foundation.js"></script>
     <link type="text/css" rel="stylesheet" href="bower_components/foundation/css/foundation.min.css" />
+    <link type="text/css" rel="stylesheet" href="style/foundation-icons.css" />
     <link type="text/css" rel="stylesheet" href="style/chat.css" />
 </head>
 <body>
-<div class="top-bar" role="navigation" data-topbar>
+<nav class="top-bar" role="navigation">
     <ul class="title-area">
         <li class="name">
             <h1><a href="#">WebSocket Chat</a></h1>
@@ -31,11 +32,11 @@
 
     <section class="top-bar-section">
         <!-- Right Nav Section -->
-        <ul class="right">
+        <ul class="right" id="topmenu">
             <li class="has-dropdown">
                 <a href="#">Menu</a>
                 <ul class="dropdown" id="submenu">
-                    <li><a href="#" id="logout">Logout</a></li>
+                    <li><a href="#" class="logout-class" id="logout">Logout</a></li>
                     <li><a href="#">Change Name</a></li>
                 </ul>
             </li>
@@ -44,7 +45,7 @@
     <section class="middle tab-bar-section">
         <div id="notification-message" class="title"></div>
     </section>
-</div>
+</nav>
 <audio id="sound-player" preload="auto" src="sounds/button-48.wav">
 <!--    <source id="sound-player-src" src="sounds/button-48.wav" type="audio/wav" />-->
 </audio>
