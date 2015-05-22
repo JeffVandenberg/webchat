@@ -45,6 +45,9 @@
         <div id="notification-message" class="title"></div>
     </section>
 </div>
+<audio id="sound-player" preload="auto" src="sounds/button-48.wav">
+<!--    <source id="sound-player-src" src="sounds/button-48.wav" type="audio/wav" />-->
+</audio>
 <div id="login" class="panel">
     <label for="username">User Name</label><input type="text" name="username" id="username" /><br />
     <input type="button" id="login-button" value="Login" />

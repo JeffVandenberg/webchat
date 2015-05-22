@@ -5,6 +5,18 @@ var parameters = {
     userName: ''
 };
 
+var sound = {
+    play: function(file) {
+        var player = $("#sound-player");
+        //player.attr('src', 'sounds/' + file);
+        //$("#sound-player-src").attr('src', 'sounds/' + file);
+        player[0].load();
+        player[0].play();
+        //player[0].load();
+        //player[0].play();
+        //document.getElementById("sound-player").play();
+    }
+};
 var chat = {
     connect: function(userName, action, id, roomId) {
         this.connection = new WebSocket('ws://wantonwicked.gamingsandbox.com:8080?' +
@@ -26,6 +38,7 @@ var chat = {
         var data = JSON.parse(e.data);
 
         if(data.type == 'message') {
+            sound.play('button-41.wav');
             var message = data.message;
             if(data.message.indexOf(parameters.userName) >= 0) {
                 message = message.replace(parameters.userName, '<span style="color:#f00;">' + parameters.userName + '</span>');
@@ -51,6 +64,7 @@ var chat = {
             }
         }
         else if(data.type == 'userlist-update') {
+            sound.play('button-48.wav');
             var username = data.data.username; //.replace('/[^\w]/', '');
             var userid = data.data.id;
 
