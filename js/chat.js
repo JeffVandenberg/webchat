@@ -184,6 +184,10 @@ $(function() {
     $("#top-menu li").click(function(e) {
         alert('click');
     });
+    $("#logout-class").click(function(e) {
+        e.preventDefault();
+        alert('hello!');
+    });
     $("#logout-button").click(function() {
         chat.closeConnection();
     });
