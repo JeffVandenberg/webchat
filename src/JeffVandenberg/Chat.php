@@ -11,6 +11,7 @@ namespace JeffVandenberg;
 
 use JeffVandenberg\Connection\ConnectionManager;
 use JeffVandenberg\Message\MessageManager;
+use JeffVandenberg\Message\MessageParser;
 use JeffVandenberg\Room\RoomManager;
 use JeffVandenberg\User\UserManager;
 use Ratchet\ConnectionInterface;
@@ -45,7 +46,7 @@ class Chat implements MessageComponentInterface
     public function __construct()
     {
         $this->ConnectionManager = new ConnectionManager($this);
-        $this->MessageManager = new MessageManager($this);
+        $this->MessageManager = new MessageManager($this, new MessageParser());
         $this->RoomManager = new RoomManager($this);
         $this->UserManager = new UserManager($this);
     }
@@ -122,7 +123,8 @@ class Chat implements MessageComponentInterface
         $command = json_decode($msg, true);
         switch (strtolower($command['action'])) {
             case 'room-message':
-                $this->RoomManager->sendMessageToRoom($connInfo, $command['data']['message']);
+                $messageText = $this->MessageManager->parseMessage($command['data']['message']);
+                $this->RoomManager->sendMessageToRoom($connInfo, $messageText);
                 break;
             case 'change-room':
                 $this->RoomManager->switchRoomForConnection($connInfo, $command['data']['roomId']);

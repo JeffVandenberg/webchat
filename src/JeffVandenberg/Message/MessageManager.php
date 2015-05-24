@@ -21,14 +21,20 @@ class MessageManager
      * @var Chat
      */
     private $chat;
+    /**
+     * @var MessageParser
+     */
+    private $parser;
 
     /**
      * MessageManager constructor.
      * @param Chat $chat
+     * @param MessageParser $parser
      */
-    public function __construct(Chat $chat)
+    public function __construct(Chat $chat, MessageParser $parser)
     {
         $this->chat = $chat;
+        $this->parser = $parser;
     }
 
     public function sendFullUserList(array $connections)
@@ -134,5 +140,10 @@ class MessageManager
             );
         }
         $connInfo->getConnection()->send(json_encode($usersData));
+    }
+
+    public function parseMessage($message)
+    {
+        return $this->parser->parse($message);
     }
 }

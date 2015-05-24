@@ -65,3 +65,7 @@
     color: #ddd;
     font-weight: bold;
 }
+
+.clickable {
+    cursor: pointer;
+}
