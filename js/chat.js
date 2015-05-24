@@ -19,6 +19,7 @@ var sound = {
 };
 var chat = {
     connect: function(userName, action, id, roomId) {
+        $("#notification-message").text('Connecting....');
         this.connection = new WebSocket('ws://wantonwicked.gamingsandbox.com:8080?' +
             'action=' + action +
             '&id=' + id +
@@ -84,6 +85,7 @@ var chat = {
             }
         }
         else if(data.type == 'roomlist') {
+            $("#roomlist").empty();
             for(var i= 0; i < data.data.length; i++) {
                 var roominfo = data.data[i];
                 var room = $("<option>")
@@ -96,9 +98,10 @@ var chat = {
     },
 
     openConnection: function() {
-        $("#notification-message").text('Connected to Server!');
-        $("#login").hide();
+        $("#notification-message").text('Connected');
+        $("#login-form").hide();
         $("#chat-container").show();
+        $("#message-container").empty();
     },
 
     closeConnection: function() {
@@ -106,8 +109,8 @@ var chat = {
     },
 
     closeCleanUp: function() {
-        $("#notification-message").text('Connection Closed!');
-        $("#login").show();
+        $("#notification-message").text('Disconnected');
+        $("#login-form").show();
         $("#chat-container").hide();
     },
 
@@ -181,12 +184,9 @@ $(function() {
         chat.changeRoom($(this).val());
     });
 
-    $("#top-menu li").click(function(e) {
-        alert('click');
-    });
-    $("#logout-class").click(function(e) {
-        e.preventDefault();
-        alert('hello!');
+    // wire up menus
+    $("#logout").click(function(e) {
+        chat.closeConnection();
     });
     $("#logout-button").click(function() {
         chat.closeConnection();

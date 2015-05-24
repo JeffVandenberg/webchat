@@ -88,11 +88,6 @@ class Chat implements MessageComponentInterface
         // The connection is closed, remove it, as we can no longer send it messages
         $connInfo = $this->ConnectionManager->getConnectionInfoForConnection($conn);
 
-        $key = array_search($connInfo->getUsername(), $this->users);
-        if ($key !== false) {
-            unset($this->users[$key]);
-        }
-
         $this->ConnectionManager->unsetConnection($connInfo);
         $room = $this->RoomManager->getRoom($connInfo->getRoomId());
         $room->removeConnection($connInfo);

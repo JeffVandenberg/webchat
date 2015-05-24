@@ -26,8 +26,8 @@
 }
 
 #userlist {
-    float: right;
-    width: 200px;
+    /*float: right;*/
+    /*width: 200px;*/
     height: 400px;
     border: solid 1px #cdc;
     background: #eed;
@@ -45,7 +45,7 @@
     text-align: center;
 }
 
-#login {
+#login-form {
     width: 500px;
     margin: 0 auto;
     border: 1px solid #224;
