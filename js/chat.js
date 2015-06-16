@@ -1,3 +1,5 @@
+// client connection parameters
+// these will be sent on initial connection to the server
 var parameters = {
     action  : 'ooc-login',
     id      : 8,
@@ -18,20 +20,37 @@ var sound = {
     }
 };
 var chat = {
+    type: '',
+    // connection property information to send with requests to the server
+    // this should be information passed back from the server
+    // on window close, there should be a check for remaining connections
+    // if there are connections, remove this instance and serialize the rest
+    // then send it to storage for another chat window to pick up
+    connections: {},
+    isConnected: function () {
+        return (localStorage.getItem('webchat-is-connected') == 'true');
+    },
     connect: function (userName, action, id, roomId) {
         $("#notification-message").text('Connecting....');
-        this.connection = new WebSocket('ws://wantonwicked.gamingsandbox.com:8080?' +
-            'action=' + action +
-            '&id=' + id +
-            '&username=' + encodeURIComponent(userName) +
-            '&roomId=' + roomId
-        );
 
-        this.connection.onopen = this.openConnection;
+        if(chat.isConnected()) {
+            // register as a slave window
+        }
+        else {
+            // establish new connection
+            this.connection = new WebSocket('ws://wantonwicked.gamingsandbox.com:8080?' +
+                'action=' + action +
+                '&id=' + id +
+                '&username=' + encodeURIComponent(userName) +
+                '&roomId=' + roomId
+            );
 
-        this.connection.onmessage = this.handleMessage;
+            this.connection.onopen = this.openConnection;
 
-        this.connection.onclose = this.closeCleanUp;
+            this.connection.onmessage = this.handleMessage;
+
+            this.connection.onclose = this.closeCleanUp;
+        }
     },
 
     addUserListEntry: function (user) {
@@ -122,7 +141,11 @@ var chat = {
         }
     },
 
+    setIsConnected: function (status) {
+        localStorage.setItem('webchat-is-connected', status);
+    },
     openConnection: function () {
+        chat.setIsConnected('true');
         $("#notification-message").text('Connected');
         $("#login-form").hide();
         $("#chat-container").show();
@@ -171,6 +194,12 @@ var chat = {
     }
 };
 
+$(window).bind('storage', function(e) {
+    if(e.originalEvent.key == 'webchat') {
+        alert('Received message: ' + e.originalEvent.newValue);
+    }
+});
+
 $(function () {
     $("#login-button").click(function () {
         var username = $("#username").val();
@@ -194,8 +223,9 @@ $(function () {
     });
 
     $("#send-message").click(function () {
-        var messageBox = $("#message-box");
-        var message = messageBox.val();
+        var messageBox = $("#message-box"),
+            message = messageBox.val();
+
         if ($.trim(message) !== '') {
             chat.sendMessage(message);
             messageBox.val('');
@@ -203,6 +233,11 @@ $(function () {
         else {
             alert('no message entered');
         }
+    });
+
+    $('#pm-window-open').click(function() {
+        window.open('pm.php');
+        return false;
     });
 
     $("#roomlist").change(function (e) {

@@ -72,6 +72,7 @@
         <label for="message-box"></label> <input type="text" id="message-box" />
         <a id="send-message" class="button tiny round" href="#">Send</a>
     </div>
+    <a href="#" id="pm-window-open" class="button">Open PM Window</a>
 </div>
 <script type="application/javascript" src="bower_components/jquery/dist/jquery.min.js"></script>
 <script type="application/javascript" src="js/chat.js"></script>
