@@ -27,30 +27,23 @@ var chat = {
     // if there are connections, remove this instance and serialize the rest
     // then send it to storage for another chat window to pick up
     connections: {},
-    isConnected: function () {
-        return (localStorage.getItem('webchat-is-connected') == 'true');
-    },
+
     connect: function (userName, action, id, roomId) {
         $("#notification-message").text('Connecting....');
 
-        if(chat.isConnected()) {
-            // register as a slave window
-        }
-        else {
-            // establish new connection
-            this.connection = new WebSocket('ws://wantonwicked.gamingsandbox.com:8080?' +
-                'action=' + action +
-                '&id=' + id +
-                '&username=' + encodeURIComponent(userName) +
-                '&roomId=' + roomId
-            );
+        // establish new connection
+        this.connection = new WebSocket('ws://wantonwicked.gamingsandbox.com:8080?' +
+            'action=' + action +
+            '&id=' + id +
+            '&username=' + encodeURIComponent(userName) +
+            '&roomId=' + roomId
+        );
 
-            this.connection.onopen = this.openConnection;
+        this.connection.onopen = this.openConnection;
 
-            this.connection.onmessage = this.handleMessage;
+        this.connection.onmessage = this.handleMessage;
 
-            this.connection.onclose = this.closeCleanUp;
-        }
+        this.connection.onclose = this.closeCleanUp;
     },
 
     addUserListEntry: function (user) {
@@ -96,6 +89,7 @@ var chat = {
     handleMessage   : function (e) {
         var container = $("#message-container");
         var data = JSON.parse(e.data);
+        var i;
 
         if (data.type == 'message') {
             sound.play('button-41.wav');
@@ -112,7 +106,7 @@ var chat = {
         }
         else if (data.type == 'userlist') {
             $("#userlist").empty();
-            for (var i = 0; i < data.data.length; i++) {
+            for (i = 0; i < data.data.length; i++) {
                 chat.addUserListEntry(data.data[i]);
             }
             chat.sortUserList();
@@ -129,23 +123,20 @@ var chat = {
             }
         }
         else if (data.type == 'roomlist') {
-            $("#roomlist").empty();
-            for (var i = 0; i < data.data.length; i++) {
+            var roomList = $("#roomlist");
+            roomList.empty();
+            for (i = 0; i < data.data.length; i++) {
                 var roominfo = data.data[i];
                 var room = $("<option>")
                     .val(roominfo.id)
                     .text(roominfo.name);
-                $("#roomlist").append(room);
+                roomList.append(room);
             }
-            $("#roomlist").val(parameters.roomId);
+            roomList.val(parameters.roomId);
         }
     },
 
-    setIsConnected: function (status) {
-        localStorage.setItem('webchat-is-connected', status);
-    },
     openConnection: function () {
-        chat.setIsConnected('true');
         $("#notification-message").text('Connected');
         $("#login-form").hide();
         $("#chat-container").show();
@@ -240,12 +231,12 @@ $(function () {
         return false;
     });
 
-    $("#roomlist").change(function (e) {
+    $("#roomlist").change(function () {
         chat.changeRoom($(this).val());
     });
 
     // wire up menus
-    $("#logout").click(function (e) {
+    $("#logout").click(function () {
         chat.closeConnection();
     });
     $("#logout-button").click(function () {
